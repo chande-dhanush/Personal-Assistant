@@ -22,7 +22,6 @@ Levos is a voice/chat-based AI assistant built using the **Groq API** and powere
 - Python 3.9+
 - Groq API Key (for LLaMA3 chat)
 - Spotify Developer API credentials
-- Optional: Selenium for WhatsApp automation
 
 ---
 
