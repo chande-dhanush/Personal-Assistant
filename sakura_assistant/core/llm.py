@@ -13,6 +13,6 @@ def sakura_llm_response(user_message, history=None):
     messages.append({"role": "user", "content": user_message})
     chat_completion = client.chat.completions.create(
         messages=messages,
-        model="llama3-8b-8192",
+        model="compound-beta-mini",
     )
     return chat_completion.choices[0].message.content 
