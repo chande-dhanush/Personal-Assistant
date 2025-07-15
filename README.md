@@ -131,6 +131,17 @@ run_sakura.py              # Main entry point
 * [PyQt5](https://riverbankcomputing.com/software/pyqt/)
 * [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
 
+Keywords:
+* play the song <song name>: searches for a track on spotify and plays it. 
+* play the video <video name> : Searches for a youtube video and autoplays whatever is closest.
+* spotify <play/pause/next/volume>: manipulates spotify
+* open mail: To open your gmail on your default browser on your default gmail account.
+* i want to watch anime/ watch anime: opens hianime website/ or enter anime name after the same to search for anime
+* system status
+* the weather
+* send a message to <contact name> saying <content> : to send whatsapp message only if webwhatsapp is logged in on your default browser.
+
+Explore others by trying out :wink:
 ---
 
 ## 🤛 Why use Levos?
