@@ -1,4 +1,3 @@
-
 # 🌸 Levos – Your AI Personal Assistant (But With Attitude 😤)
 
 Levos is your Gen-Z-coded AI assistant — powered by **Groq API + LLaMA 3 (8B)** — with a playful personality, emotional memory, a flirty sense of humor, and the ability to *roast* you mid-convo if you act up. It handles tasks like Spotify control, WhatsApp messaging, anime searches, and random internet tools to keep you entertained, informed, and slightly offended.
@@ -7,8 +6,8 @@ Levos is your Gen-Z-coded AI assistant — powered by **Groq API + LLaMA 3 (8B)*
 
 ## ✨ Features
 
-* 🎧 **Spotify Control**
-  Play songs, skip tracks, control volume, or resume playback with voice commands.
+* 🎷 **Spotify Control**
+  Play songs, skip tracks, control volume, or resume playback with voice commands. Optimized with a smarter polling system — it doesn’t hog resources or spam "🎷 Using \[device]" unnecessarily.
 * 📺 **YouTube Playback**
   Search and play YouTube videos using `pywhatkit`.
 * 📱 **WhatsApp Messaging**
@@ -29,6 +28,10 @@ Levos is your Gen-Z-coded AI assistant — powered by **Groq API + LLaMA 3 (8B)*
   * [OpenWeatherMap API](https://openweathermap.org/)
 * ❤️ **Conversational AI with Personality**
   Think of Levos as your sarcastic virtual partner: smart, funny, and a little chaotic.
+* 💻 **Desktop UI (PyQt5)**
+  Slick floating bubble UI with a chat window, mic input, voice button, and animated personality. Styled with a dark Discord-like theme + optional shadow effects.
+* 🔊 **Voice Interaction**
+  Mic button for real-time speech recognition — say "Spotify play", and boom, music.
 
 ---
 
@@ -43,7 +46,7 @@ Levos is your Gen-Z-coded AI assistant — powered by **Groq API + LLaMA 3 (8B)*
 
 ---
 
-### 🪜 Steps to Run
+### 🩜 Steps to Run
 
 1. **Clone the repo**
 
@@ -58,7 +61,6 @@ Levos is your Gen-Z-coded AI assistant — powered by **Groq API + LLaMA 3 (8B)*
    GROQ_API_KEY=your_groq_api_key
    SPOTIFY_CLIENT_ID=your_spotify_client_id
    SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-   SPOTIFY_REDIRECT_URI=your_spotify_redirect_uri
    WEATHER_API_KEY=your_openweathermap_api_key
    ```
 
@@ -78,6 +80,17 @@ Levos is your Gen-Z-coded AI assistant — powered by **Groq API + LLaMA 3 (8B)*
 
 ---
 
+## Spotify Disclaimer
+you also have to finish some setups in the spotify developers page. It's fine if you don't wanna use spotify, else follow the following steps.
+1. open the developers portal of spotify and create an account if u don't already have it.
+2. Once u have an account go to your dashboard and create an app.
+3. Most of the values can be default or u can customize except the "Redirect URIs" Section, make sure u input this URI: http://127.0.0.1:8888/callback
+4. Feel free to give a different URI if u want, but remember to change the same in the code too, it's in the "commands.py" file under the core directory.
+
+### refer to this link if u wanna build an app from scratch.
+https://developer.spotify.com/documentation/web-playback-sdk/howtos/web-app-player
+
+
 ## 🧠 Memory & Personality
 
 Levos uses **semantic search (RAG)** to recall past messages — more efficient than dumping 20+ chats every time. It's also got a dynamic personality defined in `config/personality.py`, with snarky greetings and roast lines randomly triggered during chat startup.
@@ -92,7 +105,7 @@ Assets/
 ├── .env                   # Your API keys
 |-- Conversation_history
 |-- Icon.jpg
-|-= bg.jpg (optional)
+|-- bg.jpg (optional)
         # Vector-stored memory (for RAG)
 config/
 core/
@@ -115,13 +128,14 @@ run_sakura.py              # Main entry point
 * [OpenWeatherMap](https://openweathermap.org/)
 * [DuckDuckGo Instant Answer API](https://duckduckgo.com/api)
 * [pywhatkit](https://github.com/Ankit404butfound/PyWhatKit)
+* [PyQt5](https://riverbankcomputing.com/software/pyqt/)
+* [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
 
 ---
 
-## 🙋‍♂️ Why use Levos?
+## 🤛 Why use Levos?
 
 Because Siri won't flirt back, Alexa doesn't roast you, and ChatGPT is too polite.
 Levos is what happens when an LLM is raised on memes, anime, and internet sarcasm.
 
 ---
-
