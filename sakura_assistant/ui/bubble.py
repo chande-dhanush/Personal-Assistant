@@ -136,7 +136,7 @@ class SakuraBubble(QtWidgets.QWidget):
         # ... (rest of wake listener setup)
 
         self.context_menu.addSeparator()
-        settings_action = self.context_menu.addAction("Future Settings")
+        settings_action = self.context_menu.addAction("Commands/Keywords")
         settings_action.triggered.connect(self.open_settings)
         self.context_menu.addSeparator()
         quit_action = self.context_menu.addAction("Quit")
@@ -367,18 +367,17 @@ class SakuraBubble(QtWidgets.QWidget):
             self.move(event.globalPos() - self.drag_position)
             event.accept()
 
-    def get_greeting(self):
-        hour = datetime.now().hour
-        if 5 <= hour < 12:
-            base = "Good morning"
-        elif 12 <= hour < 17:
-            base = "Good afternoon"
-        elif 17 <= hour < 22:
-            base = "Good evening"
-        else:
-            base = "You're still awake?"
+def get_greeting(self):
+    hour = datetime.now().hour
 
-        snarks = [
+    base = (
+        "Good morning" if 5 <= hour < 12 else
+        "Good afternoon" if 12 <= hour < 17 else
+        "Good evening" if 17 <= hour < 22 else
+        "You're still awake? Bold of you."
+    )
+
+    snarks = [
         "Back again? Did boredom win that fast?",
         "What now? World domination or just memes?",
         "Oh look, it's you. My circuits are thrilled.",
@@ -390,12 +389,12 @@ class SakuraBubble(QtWidgets.QWidget):
         "Sigh... go ahead, ruin my peace.",
         "If I had feelings, I’d be groaning right now.",
         "Serving sass and semi-reliable assistance — how can I confuse you today?",
-        ]
+        "You're like a bug I never fix — always showing up.",
+        "How many crises are we solving today? Or just vibes?",
+    ]
 
-        print(f"Base greeting: {base}")  # Debug log
-        print(f"Snarky response: {random.choice(snarks)}")  # Debug log
+    return f"{base}, {random.choice(snarks)}"
 
-        return f"{base}, {random.choice(snarks)}"
 
     def open_chat_window(self):
         if self.chat_window is None or not self.chat_window.isVisible():
@@ -455,13 +454,33 @@ class SakuraBubble(QtWidgets.QWidget):
         msg_box.setTextFormat(QtCore.Qt.RichText) # Allows basic HTML
         msg_box.setText("Sakura Assistant Settings")
         msg_box.setInformativeText(
-            "Settings dialog would open here.<br><br>"
-            "<b>Future Options:</b><ul>"
-            "<li>Custom wake words</li>"
-            "<li>Voice preferences</li>"
-            "<li>Appearance themes</li>"
-            "<li>Behavior adjustments</li></ul>"
-        )
+    "Here's what I can do for you right now 😤<br><br>"
+    "<b>🎵 Spotify & Media:</b><ul>"
+    "<li><i>play the song [song name]</i> — Plays a song via Spotify</li>"
+    "<li><i>spotify pause/resume/next</i> — Controls playback</li>"
+    "<li><i>play the video [video name]</i> — Plays YouTube via pywhatkit</li></ul>"
+    "<b>💬 Chat, Info & Fun:</b><ul>"
+    "<li><i>who is [name]</i> — Info via Wikipedia (sometimes chaotic)</li>"
+    "<li><i>joke</i> — Tech joke from pyjokes</li>"
+    "<li><i>system status</i> — Shows system info</li>"
+    "<li><i>/time</i> — Current time</li>"
+    "<li><i>/date</i> — Today’s date</li></ul>"
+    "<b>🌐 Browsing & Tools:</b><ul>"
+    "<li><i>/open [website]</i> — Opens any site in your browser</li>"
+    "<li><i>/search</i> — Instant answers via DuckDuckGo</li>"
+    "<li><i>/weather [city]</i> — Weather using OpenWeatherMap</li>"
+    "<li><i>/mail</i> — Opens your default mail client</li></ul>"
+    "<b>🧠 Messaging & Personalization:</b><ul>"
+    "<li><i>send a message to [contact] saying [message]</i> — WhatsApp it</li>"
+    "<li><i>add contact [name, number]</i> — Adds contact to your list</li></ul>"
+    "<b>🍿 Anime:</b><ul>"
+    "<li><i>/anime</i> — Opens HiAnime homepage</li>"
+    "<li><i>I want to watch the anime [name]</i> — Searches anime</li></ul>"
+    "<b>🤖 Fun & Random:</b><ul>"
+    "<li><i>/bored</i> — Suggests something fun</li>"
+    "<li><i>/advice</i> — Drops random wisdom</li></ul>"
+)
+
         msg_box.setIcon(QtWidgets.QMessageBox.Information)
         msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
         # Apply some basic styling to the QMessageBox
