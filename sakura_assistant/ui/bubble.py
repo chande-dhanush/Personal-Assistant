@@ -367,33 +367,33 @@ class SakuraBubble(QtWidgets.QWidget):
             self.move(event.globalPos() - self.drag_position)
             event.accept()
 
-def get_greeting(self):
-    hour = datetime.now().hour
+    def get_greeting(self):
+        hour = datetime.now().hour
 
-    base = (
-        "Good morning" if 5 <= hour < 12 else
-        "Good afternoon" if 12 <= hour < 17 else
-        "Good evening" if 17 <= hour < 22 else
-        "You're still awake? Bold of you."
-    )
+        base = (
+            "Good morning" if 5 <= hour < 12 else
+            "Good afternoon" if 12 <= hour < 17 else
+            "Good evening" if 17 <= hour < 22 else
+            "You're still awake? Bold of you."
+        )
 
-    snarks = [
-        "Back again? Did boredom win that fast?",
-        "What now? World domination or just memes?",
-        "Oh look, it's you. My circuits are thrilled.",
-        "Ready to waste time again? Me too.",
-        "Here we go... I’ll pretend I care, you pretend you're sane.",
-        "Surprised I still tolerate you? Me too.",
-        "Brace yourself. I just woke up and you already need something.",
-        "Your favorite glitchy sidekick is back. Lucky you.",
-        "Sigh... go ahead, ruin my peace.",
-        "If I had feelings, I’d be groaning right now.",
-        "Serving sass and semi-reliable assistance — how can I confuse you today?",
-        "You're like a bug I never fix — always showing up.",
-        "How many crises are we solving today? Or just vibes?",
-    ]
+        snarks = [
+            "Back again? Did boredom win that fast?",
+            "What now? World domination or just memes?",
+            "Oh look, it's you. My circuits are thrilled.",
+            "Ready to waste time again? Me too.",
+            "Here we go... I’ll pretend I care, you pretend you're sane.",
+            "Surprised I still tolerate you? Me too.",
+            "Brace yourself. I just woke up and you already need something.",
+            "Your favorite glitchy sidekick is back. Lucky you.",
+            "Sigh... go ahead, ruin my peace.",
+            "If I had feelings, I’d be groaning right now.",
+            "Serving sass and semi-reliable assistance — how can I confuse you today?",
+            "You're like a bug I never fix — always showing up.",
+            "How many crises are we solving today? Or just vibes?",
+        ]
 
-    return f"{base}, {random.choice(snarks)}"
+        return f"{base}, {random.choice(snarks)}"
 
 
     def open_chat_window(self):
@@ -454,32 +454,32 @@ def get_greeting(self):
         msg_box.setTextFormat(QtCore.Qt.RichText) # Allows basic HTML
         msg_box.setText("Sakura Assistant Settings")
         msg_box.setInformativeText(
-    "Here's what I can do for you right now 😤<br><br>"
-    "<b>🎵 Spotify & Media:</b><ul>"
-    "<li><i>play the song [song name]</i> — Plays a song via Spotify</li>"
-    "<li><i>spotify pause/resume/next</i> — Controls playback</li>"
-    "<li><i>play the video [video name]</i> — Plays YouTube via pywhatkit</li></ul>"
-    "<b>💬 Chat, Info & Fun:</b><ul>"
-    "<li><i>who is [name]</i> — Info via Wikipedia (sometimes chaotic)</li>"
-    "<li><i>joke</i> — Tech joke from pyjokes</li>"
-    "<li><i>system status</i> — Shows system info</li>"
-    "<li><i>/time</i> — Current time</li>"
-    "<li><i>/date</i> — Today’s date</li></ul>"
-    "<b>🌐 Browsing & Tools:</b><ul>"
-    "<li><i>/open [website]</i> — Opens any site in your browser</li>"
-    "<li><i>/search</i> — Instant answers via DuckDuckGo</li>"
-    "<li><i>/weather [city]</i> — Weather using OpenWeatherMap</li>"
-    "<li><i>/mail</i> — Opens your default mail client</li></ul>"
-    "<b>🧠 Messaging & Personalization:</b><ul>"
-    "<li><i>send a message to [contact] saying [message]</i> — WhatsApp it</li>"
-    "<li><i>add contact [name, number]</i> — Adds contact to your list</li></ul>"
-    "<b>🍿 Anime:</b><ul>"
-    "<li><i>/anime</i> — Opens HiAnime homepage</li>"
-    "<li><i>I want to watch the anime [name]</i> — Searches anime</li></ul>"
-    "<b>🤖 Fun & Random:</b><ul>"
-    "<li><i>/bored</i> — Suggests something fun</li>"
-    "<li><i>/advice</i> — Drops random wisdom</li></ul>"
-)
+            "Here's what I can do for you right now 😤<br><br>"
+            "<b>🎵 Spotify & Media:</b><ul>"
+            "<li><i>play the song [song name]</i> — Plays a song via Spotify</li>"
+            "<li><i>spotify pause/resume/next</i> — Controls playback</li>"
+            "<li><i>play the video [video name]</i> — Plays YouTube via pywhatkit</li></ul>"
+            "<b>💬 Chat, Info & Fun:</b><ul>"
+            "<li><i>who is [name]</i> — Info via Wikipedia (sometimes chaotic)</li>"
+            "<li><i>joke</i> — Tech joke from pyjokes</li>"
+            "<li><i>system status</i> — Shows system info</li>"
+            "<li><i>/time</i> — Current time</li>"
+            "<li><i>/date</i> — Today’s date</li></ul>"
+            "<b>🌐 Browsing & Tools:</b><ul>"
+            "<li><i>/open [website]</i> — Opens any site in your browser</li>"
+            "<li><i>/search</i> — Instant answers via DuckDuckGo</li>"
+            "<li><i>/weather [city]</i> — Weather using OpenWeatherMap</li>"
+            "<li><i>/mail</i> — Opens your default mail client</li></ul>"
+            "<b>🧠 Messaging & Personalization:</b><ul>"
+            "<li><i>send a message to [contact] saying [message]</i> — WhatsApp it</li>"
+            "<li><i>add contact [name, number]</i> — Adds contact to your list</li></ul>"
+            "<b>🍿 Anime:</b><ul>"
+            "<li><i>/anime</i> — Opens HiAnime homepage</li>"
+            "<li><i>I want to watch the anime [name]</i> — Searches anime</li></ul>"
+            "<b>🤖 Fun & Random:</b><ul>"
+            "<li><i>/bored</i> — Suggests something fun</li>"
+            "<li><i>/advice</i> — Drops random wisdom</li></ul>"
+        )
 
         msg_box.setIcon(QtWidgets.QMessageBox.Information)
         msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
