@@ -131,17 +131,40 @@ run_sakura.py              # Main entry point
 * [PyQt5](https://riverbankcomputing.com/software/pyqt/)
 * [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
 
-Keywords:
-* play the song <song name>: searches for a track on spotify and plays it. 
-* play the video <video name> : Searches for a youtube video and autoplays whatever is closest.
-* spotify <play/pause/next/volume>: manipulates spotify
-* open mail: To open your gmail on your default browser on your default gmail account.
-* i want to watch anime/ watch anime: opens hianime website/ or enter anime name after the same to search for anime
-* system status
-* the weather
-* send a message to <contact name> saying <content> : to send whatsapp message only if webwhatsapp is logged in on your default browser.
+## 🧾 Supported Voice/Text Commands
 
-Explore others by trying out :wink:
+### 🎵 Spotify & Media
+* play the song [song name] — Plays a song using Spotify.
+* spotify pause, spotify resume, spotify next, etc. — Handles Spotify playback controls.
+* play the video [video name] — Opens the YouTube video via pywhatkit.
+
+### 💬 Chat, Info & Fun
+* who is [name] — Fetches quick info using wikipedia api (still facing glitches)
+* joke — Returns a random tech joke via pyjokes.
+* system status — Shows system stats (CPU, RAM, OS).
+* /time — Tells you the current time.
+* /date — Gives today’s date.
+
+### 🌐 Browsing & Tools
+* /open [website] — Opens any website in your default browser.
+* /search — Uses DuckDuckGo Instant Answer API.
+* /weather [city] — Weather data using OpenWeatherMap.
+* /mail — Opens your default mail client.
+
+### 🧠 Personalization & Messaging
+* send a message to [contact name saved] saying [your message] — Sends WhatsApp message via pywhatkit.
+* add contact [name, number] — Adds a new contact to your contact book.
+
+### 🍿 Anime
+* /anime — Opens the hianime homepage.
+* I want to watch the anime [anime name] - opens hianime search results for the anime
+
+### 🤖 Fun & Random
+* /bored — Get an activity suggestion via BoredAPI.
+* /advice — Get a random piece of advice.
+
+### Explore others by trying out 😉
+or feel free to add your own 🌝
 ---
 
 ## 🤛 Why use Levos?
