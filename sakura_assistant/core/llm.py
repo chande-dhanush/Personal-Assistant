@@ -1,18 +1,52 @@
-from groq import Groq
-from ..config import GROQ_API_KEY, SYSTEM_PERSONALITY
+# core/LLM.py
 
-# Initialize Groq client
-client = Groq(api_key=GROQ_API_KEY)
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_core.prompts import ChatPromptTemplate
+from ..core.tools import get_all_tools
+import os
+from ..config import SYSTEM_PERSONALITY
+# === 1. Load Gemini API key ===
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "Your API Key")
 
-def sakura_llm_response(user_message, history=None):
-    messages = [{"role": "system", "content": SYSTEM_PERSONALITY}]
-    if history:
-        # Only keep the last 8 exchanges for brevity
-        for msg in history[-8:]:
-            messages.append({"role": msg["role"], "content": msg["content"]})
-    messages.append({"role": "user", "content": user_message})
-    chat_completion = client.chat.completions.create(
-        messages=messages,
-        model="llama-3.1-8b-instant",
-    )
-    return chat_completion.choices[0].message.content 
+# === 2. Define Gemini LLM (2.5 Flash) ===
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    temperature=0,
+    streaming=False,
+    verbose=True,
+    google_api_key=GOOGLE_API_KEY
+)
+
+# === 3. Prepare tools ===
+all_tools = get_all_tools()
+
+# === 4. Create the agent prompt ===
+prompt = ChatPromptTemplate.from_messages([
+    ("system", (
+        f"{SYSTEM_PERSONALITY}\n"
+        "You may use tools to complete tasks. "
+        "Only use tools if appropriate, otherwise answer naturally."
+    )),
+    ("user", "{input}"),
+    ("placeholder", "{agent_scratchpad}")
+])
+
+# === 5. Create and wrap the agent ===
+agent = create_tool_calling_agent(llm=llm, tools=all_tools, prompt=prompt)
+
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=all_tools,
+    verbose=True,
+    handle_parsing_errors=True,
+)
+
+# === 6. Function to interact with agent ===
+def run_agentic_response(user_input: str, conversation_history=None):
+    """Returns Gemini-powered agent's response to user input."""
+    try:
+        result = agent_executor.invoke({"input": user_input})
+        return result.get("output") or "No response."
+    except Exception as e:
+        return f"⚠️ Agent error: {str(e)}"
