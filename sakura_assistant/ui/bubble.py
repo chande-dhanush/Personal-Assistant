@@ -5,6 +5,13 @@ from sakura_assistant.utils.tts import text_to_speech
 from ..utils.storage import load_conversation, save_conversation, clear_conversation_history
 from .chat_window import SakuraChatWindow
 import random
+from vosk import Model, KaldiRecognizer
+import pyaudio
+import json
+import threading
+
+WAKE_WORD = "Agent"
+WAKE_MODEL_PATH = "sakura_assistant\\assets\\vosk-model-small-en-us-0.15\\vosk-model-small-en-us-0.15"
 
 class SakuraBubble(QtWidgets.QWidget):
     def __init__(self):
@@ -64,6 +71,38 @@ class SakuraBubble(QtWidgets.QWidget):
         
         self.setup_animations()
         self.setup_context_menu()
+        self.start_wake_listener()  # Start listening for wake word    
+    
+    def start_wake_listener(self):
+        def wake_loop():
+            try:
+                model = Model(WAKE_MODEL_PATH)
+                rec = KaldiRecognizer(model, 16000)
+                mic = pyaudio.PyAudio()
+                stream = mic.open(format=pyaudio.paInt16,
+                                channels=1,
+                                rate=16000,
+                                input=True,
+                                frames_per_buffer=8000)
+                stream.start_stream()
+                print("🔊 Wake word thread running... (listening for 'hey sakura')")
+                while True:
+                    data = stream.read(4000, exception_on_overflow=False)
+                    if rec.AcceptWaveform(data):
+                        result = json.loads(rec.Result())
+                        text = result.get("text", "").lower()
+                        # Listen for "hey sakura" — simple hotword detection
+                        if WAKE_WORD in text:
+                            print("🌸 Wake word detected!")
+                            QtCore.QMetaObject.invokeMethod(
+                                self, "wake_triggered", QtCore.Qt.QueuedConnection
+                            )
+            except Exception as e:
+                print(f"⚠️ Wake listener error: {e}")
+
+        # Start listening on a background thread
+        self.wake_thread = threading.Thread(target=wake_loop, daemon=True)
+        self.wake_thread.start()
 
     def load_icon(self):
         icon_paths_to_check = ['sakura_assistant\\assets']
@@ -395,7 +434,6 @@ class SakuraBubble(QtWidgets.QWidget):
 
         return f"{base}, {random.choice(snarks)}"
 
-
     def open_chat_window(self):
         if self.chat_window is None or not self.chat_window.isVisible():
             self.chat_window = SakuraChatWindow(self.conversation_history)
@@ -454,31 +492,30 @@ class SakuraBubble(QtWidgets.QWidget):
         msg_box.setTextFormat(QtCore.Qt.RichText) # Allows basic HTML
         msg_box.setText("Sakura Assistant Settings")
         msg_box.setInformativeText(
-            "Here's what I can do for you right now 😤<br><br>"
+            "Right now these are the commands you can use:<ul>, but you can add more in the tools file.<br>"
             "<b>🎵 Spotify & Media:</b><ul>"
-            "<li><i>play the song [song name]</i> — Plays a song via Spotify</li>"
-            "<li><i>spotify pause/resume/next</i> — Controls playback</li>"
-            "<li><i>play the video [video name]</i> — Plays YouTube via pywhatkit</li></ul>"
+            "<li><i>Plays a song via Spotify</li>"
+            "<li><i>Controls spotify playback</li>"
+            "<li><i>Plays a video via YouTube</li></ul>"
             "<b>💬 Chat, Info & Fun:</b><ul>"
-            "<li><i>who is [name]</i> — Info via Wikipedia (sometimes chaotic)</li>"
-            "<li><i>joke</i> — Tech joke from pyjokes</li>"
-            "<li><i>system status</i> — Shows system info</li>"
-            "<li><i>/time</i> — Current time</li>"
-            "<li><i>/date</i> — Today’s date</li></ul>"
+            "<li>Info via Wikipedia (sometimes chaotic)</li>"
+            "<li>Tech joke from pyjokes</li>"
+            "<li>Shows system info</li>"
+            "<li>Current time</li>"
+            "<li>Today’s date</li></ul>"
             "<b>🌐 Browsing & Tools:</b><ul>"
-            "<li><i>/open [website]</i> — Opens any site in your browser</li>"
-            "<li><i>/search</i> — Instant answers via DuckDuckGo</li>"
-            "<li><i>/weather [city]</i> — Weather using OpenWeatherMap</li>"
-            "<li><i>/mail</i> — Opens your default mail client</li></ul>"
+            "<li> Opens any site in your browser</li>"
+            "<li> Instant answers via DuckDuckGo</li>"
+            "<li> Weather using OpenWeatherMap</li>"
+            "<li> Opens your default mail client</li></ul>"
             "<b>🧠 Messaging & Personalization:</b><ul>"
             "<li><i>send a message to [contact] saying [message]</i> — WhatsApp it</li>"
             "<li><i>add contact [name, number]</i> — Adds contact to your list</li></ul>"
             "<b>🍿 Anime:</b><ul>"
             "<li><i>/anime</i> — Opens HiAnime homepage</li>"
-            "<li><i>I want to watch the anime [name]</i> — Searches anime</li></ul>"
+            "<li> Searches anime</li></ul>"
             "<b>🤖 Fun & Random:</b><ul>"
-            "<li><i>/bored</i> — Suggests something fun</li>"
-            "<li><i>/advice</i> — Drops random wisdom</li></ul>"
+            "<li> Drops random wisdom</li></ul>"
         )
 
         msg_box.setIcon(QtWidgets.QMessageBox.Information)
