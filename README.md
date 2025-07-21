@@ -1,175 +1,150 @@
-# 🌸 Levos – Your AI Personal Assistant (But With Attitude 😤)
+# 🌸 Levos – Your Chaotic AI Sidekick (Now Gemini-Powered ⚡)
 
-Levos is your Gen-Z-coded AI assistant — powered by **Groq API + LLaMA 3 (8B)** — with a playful personality, emotional memory, a flirty sense of humor, and the ability to *roast* you mid-convo if you act up. It handles tasks like Spotify control, WhatsApp messaging, anime searches, and random internet tools to keep you entertained, informed, and slightly offended.
-
----
-
-## ✨ Features
-
-* 🎷 **Spotify Control**
-  Play songs, skip tracks, control volume, or resume playback with voice commands. Optimized with a smarter polling system — it doesn’t hog resources or spam "🎷 Using \[device]" unnecessarily.
-* 📺 **YouTube Playback**
-  Search and play YouTube videos using `pywhatkit`.
-* 📱 **WhatsApp Messaging**
-  Send messages to your saved contacts instantly via WhatsApp. (well only if you have enough patience for it to open whatsapp web on your pc and send it, glitchy sometimes, but works)
-* 🌐 **Anime Search**
-  Auto-opens anime pages on HiAnime from your voice input.
-* 🧠 **Memory with RAG (Retrieval-Augmented Generation)**
-  Remembers past conversations using embedding-based search, not full context dumps.
-* 🤪 **Roasts, Snarks & Greetings**
-  Detects if you're back after hours and greets you like an emotionally unstable ex.
-* 💬 **Boredom Busters**
-  Built-in tools like:
-
-  * [Bored API](https://www.boredapi.com/)
-  * [Advice Slip API](https://api.adviceslip.com/)
-  * [Animechan Quote API](https://animechan.xyz/)
-  * [DuckDuckGo Search](https://api.duckduckgo.com/)
-  * [OpenWeatherMap API](https://openweathermap.org/)
-* ❤️ **Conversational AI with Personality**
-  Think of Levos as your sarcastic virtual partner: smart, funny, and a little chaotic.
-* 💻 **Desktop UI (PyQt5)**
-  Slick floating bubble UI with a chat window, mic input, voice button, and animated personality. Styled with a dark Discord-like theme + optional shadow effects.
-* 🔊 **Voice Interaction**
-  Mic button for real-time speech recognition — say "Spotify play", and boom, music.
+Levos isn’t your average AI assistant. It’s your emotionally unstable, Gen-Z-coded desktop buddy who flirts, roasts, helps you open Chrome, and reads your screen like a nosy bestie. Now powered by **Gemini 2.5 Flash**, Levos is sassier, smarter, and less crashy than ever.
 
 ---
 
-## 🛠️ Getting Started
+## ✨ What’s New (aka why you should care)
+🔁 **Switched from Groq + LLaMA 3 → Gemini 2.5 Flash**  
+💡 Supercharged with [LangChain](https://github.com/langchain-ai/langchain) and `langchain-google-genai`  
+🧠 **Summarization-based Memory Overhaul** — no more bloated chats, just smart context compression  
+🎧 **Wake Word Detection ("Hey Sakura")** — no spying, all offline  
+🔧 **Refactored Tools** — fewer errors, more compatibility, still chaotic  
+🖼️ **OCR + Screen Reader** — reads what you see, so you can pretend you’re blind and still rule  
+🧵 **Qt Thread Fixes** — no more weird crashes when Sakura speaks  
+📦 **requirements.txt actually works now**
+
+---
+
+## 🚀 Features
+### 🧠 Gemini-Powered Agentic Brain
+- Smart summarization kicks in after 20 messages (Gemini handles it).
+- Keeps memory lightweight and context-aware.
+- Works fine on CPUs (except Gemini API itself).
+
+### 🎤 Wake Word Control
+- Uses [Vosk](https://alphacephei.com/vosk/) (offline ASR).
+- Just say **“Hey Sakura”** and she pops up, mic-on, glowing and ready.
+
+### 🎧 Spotify Control
+- Play/pause/skip songs
+- Smarter device handling
+- Only roasts your taste if it’s *really* bad
+
+### 📺 YouTube + Web Tools
+- Play YouTube videos (via pywhatkit)
+- Search Wikipedia, DuckDuckGo, Weather
+- OCR reads text from your screen
+- Open websites, apps, folders with voice
+
+### 📱 Messaging
+- Send WhatsApp messages to saved contacts (glitchy but functional)
+- Add new contacts via voice
+
+### 😈 Personality
+- Chaotic, flirty, emotionally unstable
+- Roasts you if you ghost her for too long
+- Sweet enough to make you lower your guard
+
+---
+
+## 💻 Desktop UI (PyQt5)
+- Floating chat bubble + animated vibe
+- Voice button, mic icon, dark Discord-y theme
+- Doesn’t crash anymore (mostly)
+
+---
+
+## 🔧 Setup Guide
 
 ### 🔁 Prerequisites
+- Python 3.9+
+- Gemini API Key (from Google AI Studio)
+- Spotify Developer creds *(optional)*
+- Whisper ASR/Vosk for speech recognition
 
-* Python 3.9+
-* Groq API Key (for LLaMA 3 chat)
-* Spotify Developer Credentials
-* Optional: OpenWeatherMap API key
+### 🔑 Environment Setup
+Create `.env` file in the `Assets/` folder with:
 
----
+```env
+GOOGLE_API_KEY=your_gemini_api_key
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+WEATHER_API_KEY=your_openweathermap_api_key
+```
 
-### 🩜 Steps to Run
+### 📦 Install Requirements
+```bash
+pip install -r requirements.txt
+```
 
-1. **Clone the repo**
-
-   ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   cd your-repo-name
-   ```
-
-2. **Create a `.env` file** inside the `Assets` folder and add:
-
-   ```env
-   GROQ_API_KEY=your_groq_api_key
-   SPOTIFY_CLIENT_ID=your_spotify_client_id
-   SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-   WEATHER_API_KEY=your_openweathermap_api_key
-   ```
-
-3. **Install dependencies**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Add contacts** in `contacts.json` (sample format included).
-
-5. **Run Levos**
-
-   ```bash
-   python run_sakura.py
-   ```
-
----
-
-## Spotify Disclaimer
-you also have to finish some setups in the spotify developers page. It's fine if you don't wanna use spotify, else follow the following steps.
-1. open the developers portal of spotify and create an account if u don't already have it.
-2. Once u have an account go to your dashboard and create an app.
-3. Most of the values can be default or u can customize except the "Redirect URIs" Section, make sure u input this URI: http://127.0.0.1:8888/callback
-4. Feel free to give a different URI if u want, but remember to change the same in the code too, it's in the "commands.py" file under the core directory.
-
-### refer to this link if u wanna build an app from scratch.
-https://developer.spotify.com/documentation/web-playback-sdk/howtos/web-app-player
-
-
-## 🧠 Memory & Personality
-
-Levos uses **semantic search (RAG)** to recall past messages — more efficient than dumping 20+ chats every time. It's also got a dynamic personality defined in `config/personality.py`, with snarky greetings and roast lines randomly triggered during chat startup.
-
----
-
-## 📂 File Structure
-
+### 📂 Folder Structure
 ```
 Assets/
-├── contacts.json          # WhatsApp contact list
-├── .env                   # Your API keys
-|-- Conversation_history
-|-- Icon.jpg
-|-- bg.jpg (optional)
-        # Vector-stored memory (for RAG)
+  ├── contacts.json      # WhatsApp contact list
+  ├── .env               # Your API keys
+  └── Conversation_history/
 config/
 core/
 llm/
 ui/
 utils/
-run_sakura.py              # Main entry point
+run_sakura.py            # Launch file
+```
+
+### 🏃 Run It
+```bash
+python run_sakura.py
 ```
 
 ---
 
-## 🧑‍💻 Made With
-
-* [Groq API](https://groq.com/)
-* [LLaMA 3](https://ai.meta.com/llama/)
-* [Spotify API](https://developer.spotify.com/)
-* [Bored API](https://www.boredapi.com/)
-* [Animechan Quotes](https://animechan.xyz/)
-* [Advice Slip API](https://api.adviceslip.com/)
-* [OpenWeatherMap](https://openweathermap.org/)
-* [DuckDuckGo Instant Answer API](https://duckduckgo.com/api)
-* [pywhatkit](https://github.com/Ankit404butfound/PyWhatKit)
-* [PyQt5](https://riverbankcomputing.com/software/pyqt/)
-* [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
-
-## 🧾 Supported Voice/Text Commands
-
-### 🎵 Spotify & Media
-* play the song [song name] — Plays a song using Spotify.
-* spotify pause, spotify resume, spotify next, etc. — Handles Spotify playback controls.
-* play the video [video name] — Opens the YouTube video via pywhatkit.
-
-### 💬 Chat, Info & Fun
-* who is [name] — Fetches quick info using wikipedia api (still facing glitches)
-* joke — Returns a random tech joke via pyjokes.
-* system status — Shows system stats (CPU, RAM, OS).
-* /time — Tells you the current time.
-* /date — Gives today’s date.
-
-### 🌐 Browsing & Tools
-* /open [website] — Opens any website in your default browser.
-* /search — Uses DuckDuckGo Instant Answer API.
-* /weather [city] — Weather data using OpenWeatherMap.
-* /mail — Opens your default mail client.
-
-### 🧠 Personalization & Messaging
-* send a message to [contact name saved] saying [your message] — Sends WhatsApp message via pywhatkit.
-* add contact [name, number] — Adds a new contact to your contact book.
-
-### 🍿 Anime
-* /anime — Opens the hianime homepage.
-* I want to watch the anime [anime name] - opens hianime search results for the anime
-
-### 🤖 Fun & Random
-* /bored — Get an activity suggestion via BoredAPI.
-* /advice — Get a random piece of advice.
-
-### Explore others by trying out 😉
-or feel free to add your own 🌝
----
-
-## 🤛 Why use Levos?
-
-Because Siri won't flirt back, Alexa doesn't roast you, and ChatGPT is too polite.
-Levos is what happens when an LLM is raised on memes, anime, and internet sarcasm.
+## 🧠 Memory & Summarization
+- Retains **recent chats**, summarizes older convos using Gemini.
+- Based on `faiss-cpu` and `sentence-transformers`.
+- Stored under `Assets/Conversation_history/`.
 
 ---
+
+## 📜 Supported Commands
+
+### 🎵 Media
+- `play the song [name]`  
+- `spotify pause/resume/next`  
+- `play the video [name]`
+
+### 💬 Info, Fun, System
+- `who is [name]` (Wikipedia)
+- `joke`, `/time`, `/date`, `system status`
+- `/search`, `/weather`, `/mail`
+
+### 💻 Control
+- `open [app/folder/website]`
+- `screenshot and read screen`
+- `launch notepad/chrome/etc.`
+
+### 📱 Messaging
+- `send message to [name] saying [msg]`
+- `add contact [name, number]`
+
+### 🍿 Anime & Fun
+- `/anime`, `I want to watch the anime [name]`
+- `/bored`, `/advice`, `/quote`
+
+---
+
+## 🤖 Why Choose Levos?
+Because Siri’s boring, Alexa’s basic, and ChatGPT doesn’t flirt back.  
+Levos? She's chaotic good, semi-reliable, and dangerously loveable.
+
+---
+
+## 🧠 Built With
+- **Google Gemini 2.5 Flash**
+- LangChain + AgentExecutor
+- Spotify API, YouTube, Wikipedia
+- PyTesseract OCR
+- PyQt5, pygame
+- Vosk ASR, SpeechRecognition
+- edge-tts / pyttsx3
+- sentence-transformers + faiss-cpu
