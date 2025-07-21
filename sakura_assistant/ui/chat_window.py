@@ -3,13 +3,13 @@ import speech_recognition as sr
 import threading
 from ..utils.tts import text_to_speech
 from ..utils.storage import save_conversation,clear_conversation_history
-from ..core.commands import handle_command
-from ..core.llm import sakura_llm_response
 from ..config import MAX_HISTORY
 import os
 import time
 import pyautogui
 import json
+from ..core import tools
+from sakura_assistant.core import tools
 
 class AnimatedButton(QtWidgets.QPushButton):
     def __init__(self, text, parent=None):
@@ -74,6 +74,7 @@ class SakuraChatWindow(QtWidgets.QWidget):
         self.voice_timeout_timer = QtCore.QTimer(self)
         self.voice_timeout_timer.setSingleShot(True)
         self.voice_timeout_timer.timeout.connect(self.stop_listening)
+        tools.initialize_spotify()
         
     def _update_mic_button(self, text, style):
         self.mic_btn.setText(text)
@@ -509,16 +510,18 @@ class SakuraChatWindow(QtWidgets.QWidget):
         user_message = self.textbox.text()
         if not user_message.strip():
             return
+
         self.textbox.clear()
         self.conversation_history.append({'role': 'user', 'content': user_message})
         self.append_chat_bubble(f"<b style='color:#8bc34a;'>You:</b> {user_message}")
         self.refresh_chat_area()
 
-        # WhatsApp pending message flow
+        # === 💬 WhatsApp Pending Message (fixed action override) ===
         if self.assistant_ref and self.assistant_ref.pending_action == 'whatsapp_message':
             contact_name = self.assistant_ref.pending_whatsapp_contact
             message = user_message
             contacts = json.load(open('contacts.json'))
+
             if contact_name not in contacts:
                 response = f"Contact {contact_name} not found."
             else:
@@ -527,13 +530,13 @@ class SakuraChatWindow(QtWidgets.QWidget):
                     pyautogui.sendwhatmsg_instantly(phone_number, message, wait_time=10, tab_close=True, close_time=5)
                     time.sleep(5)
                     pyautogui.press('enter')
-                    text_to_speech(f"Message sent to {contact_name}", after_speech_callback=self.start_listening)
-                    response = ""
+                    response = f"Message sent to {contact_name}"
                 except Exception as e:
                     response = f"Failed to send message: {str(e)}"
 
             self.assistant_ref.pending_action = None
             self.assistant_ref.pending_whatsapp_contact = None
+
             self.conversation_history.append({'role': 'assistant', 'content': response})
             self.append_chat_bubble(f"<b style='color:#03a9f4;'>Levos:</b> {response}")
             self.refresh_chat_area()
@@ -541,36 +544,12 @@ class SakuraChatWindow(QtWidgets.QWidget):
             save_conversation(self.conversation_history)
             return
 
-        # Tool command handling
-        command_keywords = [
-            'play the song', 'play the video', 'send message to',
-            'joke', 'who is', 'system status', '/time', '/date', '/open ', 'add contact',
-            'spotify', 'watch the anime', '/weather', '/quote', '/advice',
-            '/bored', '/search', '/mail', '/anime'
-        ]
-        if any(kw in user_message.lower() for kw in command_keywords):
-            response = handle_command(user_message, self.refresh_chat_area, assistant_ref=self.assistant_ref)
-            if response:
-                if not any (k in user_message.lower() for k in ['play the song', 'play the video']):
-                    self.conversation_history.append({'role': 'assistant', 'content': response})
-                    self.refresh_chat_area()
-                    save_conversation(self.conversation_history)
-                text_to_speech(response, after_speech_callback=None)
-                return
+        from sakura_assistant.core.llm import run_agentic_response
+        response = run_agentic_response(user_message, self.conversation_history)
 
-        # === 🔍 RAG-style memory injection ===
-        from ..utils.storage import memory_store
-        relevant_memory = memory_store.search(user_message, top_k=4)
-        memory_context = "\n\n".join(relevant_memory)
-
-        # Construct context-aware prompt
-        context_prompt = f"{memory_context}\n\nUser: {user_message}" if memory_context else user_message
-
-        # Get LLM response
-        llm_response = sakura_llm_response(context_prompt, self.conversation_history)
-        self.conversation_history.append({'role': 'assistant', 'content': llm_response})
+        self.conversation_history.append({'role': 'assistant', 'content': response})
         self.refresh_chat_area()
-        text_to_speech(llm_response, after_speech_callback=self.start_listening)
+        text_to_speech(response, after_speech_callback=self.start_listening)
         save_conversation(self.conversation_history)
 
     def handle_voice_input(self):
@@ -589,60 +568,64 @@ class SakuraChatWindow(QtWidgets.QWidget):
                 try:
                     audio = recognizer.listen(source, phrase_time_limit=5)
                     text = recognizer.recognize_google(audio)
-                    print(f"Recognized: {text}")
+                    print(f"[Voice Recognized]: {text}")
 
                     if not self.listening:
                         return
 
+                    # Display what was recognized
                     self.update_textbox.emit(text)
                     QtCore.QTimer.singleShot(100, self.clear_textbox)
 
-                    # === Tool Command Check ===
-                    command_keywords = [
-                        'play the song', 'play the video', 'send message to',
-                        'joke', 'who is', 'system status', '/time', '/date', '/open ', 'add contact',
-                        'spotify', 'watch the anime', '/weather', '/quote', '/advice',
-                        '/bored', '/search', 'search up', '/mail', '/anime'
-                    ]
+                    # WhatsApp override still applies
+                    if self.assistant_ref and self.assistant_ref.pending_action == 'whatsapp_message':
+                        contact_name = self.assistant_ref.pending_whatsapp_contact
+                        message = text
+                        contacts = json.load(open('contacts.json'))
 
-                    if any(kw in text.lower() for kw in command_keywords):
-                        response = handle_command(text, self.refresh_chat_area, assistant_ref=self.assistant_ref)
-                        if response:
-                            self.clear_textbox()
-                            if not any (k in text.lower() for k in ['play the song', 'play the video']):
-                                self.conversation_history.append({'role': 'user', 'content': text})
-                                self.conversation_history.append({'role': 'assistant', 'content': response})
-                                self.update_chat_area.emit()
-                                save_conversation(self.conversation_history)
-                            text_to_speech(response, after_speech_callback=self.reset_mic_button)
-                            
-                            return
-                    else:
-                        # === 🧠 Inject memory using RAG ===
-                        from ..utils.storage import memory_store
-                        relevant_memory = memory_store.search(text, top_k=4)
-                        memory_context = "\n\n".join(relevant_memory)
+                        if contact_name not in contacts:
+                            response = f"Contact {contact_name} not found."
+                        else:
+                            phone_number = contacts[contact_name]
+                            try:
+                                pyautogui.sendwhatmsg_instantly(phone_number, message, wait_time=10, tab_close=True, close_time=5)
+                                time.sleep(5)
+                                pyautogui.press('enter')
+                                response = f"Message sent to {contact_name}"
+                            except Exception as e:
+                                response = f"Failed to send message: {str(e)}"
 
-                        # Build context prompt
-                        context_prompt = f"{memory_context}\n\nUser: {text}" if memory_context else text
+                        self.assistant_ref.pending_action = None
+                        self.assistant_ref.pending_whatsapp_contact = None
 
-                        llm_response = sakura_llm_response(context_prompt, self.conversation_history)
                         self.conversation_history.append({'role': 'user', 'content': text})
-                        self.conversation_history.append({'role': 'assistant', 'content': llm_response})
+                        self.conversation_history.append({'role': 'assistant', 'content': response})
                         self.update_chat_area.emit()
-                        text_to_speech(llm_response, after_speech_callback=self.reset_mic_button)
+                        text_to_speech(response, after_speech_callback=self.reset_mic_button)
                         save_conversation(self.conversation_history)
-                        self.clear_textbox()
+                        return
+
+                    # === 🔁 Agent-Driven NLP Response ===
+                    from core.LLM import run_agentic_response
+                    response = run_agentic_response(text, self.conversation_history)
+
+                    self.conversation_history.append({'role': 'user', 'content': text})
+                    self.conversation_history.append({'role': 'assistant', 'content': response})
+                    self.update_chat_area.emit()
+                    text_to_speech(response, after_speech_callback=self.reset_mic_button)
+                    save_conversation(self.conversation_history)
+                    self.clear_textbox()
 
                 except sr.UnknownValueError:
-                    print("Speech not understood")
+                    print("🎙️ Speech not understood.")
                 except sr.RequestError as e:
-                    print(f"API error: {e}")
+                    print(f"🎙️ API error from speech recognition: {e}")
 
         except Exception as e:
-            print(f"Microphone error: {e}")
+            print(f"🎙️ Microphone error: {e}")
         finally:
             self.reset_mic_button()
+
 
     def start_listening(self):
         if getattr(self, '_voice_thread', None) and self._voice_thread.is_alive():
