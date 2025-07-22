@@ -15,7 +15,7 @@ MEMORY_DIM = 384
 EMBEDDING_MODEL = SentenceTransformer(MEMORY_MODEL_NAME)
 
 # === Gemini Summarization Setup ===
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "AIzaSyDP7H4sffgpp39M2zWC1NTm8Qhly12f0sc")  # <-- Set this properly!
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "Your_API_Key")  # <-- Set this properly!
 GEMINI_LLM = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY)
 GEMINI_SUMMARY_PROMPT = ChatPromptTemplate.from_template("""
 You're an agent helping summarize a long conversation history. Focus on relevant facts, entities, and actions.
