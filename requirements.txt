@@ -20,3 +20,4 @@ pillow
 langchain
 langchain_google_genai
 pytesseract
+vosk
