@@ -17,3 +17,4 @@ spotipy
 dotenv
 groq
 pillow
+langchain
