@@ -626,7 +626,6 @@ class SakuraChatWindow(QtWidgets.QWidget):
         finally:
             self.reset_mic_button()
 
-
     def start_listening(self):
         if getattr(self, '_voice_thread', None) and self._voice_thread.is_alive():
             print("Already listening, ignoring new start.")

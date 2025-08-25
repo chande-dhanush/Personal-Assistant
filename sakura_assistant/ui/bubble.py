@@ -1,6 +1,6 @@
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,timezone
 from sakura_assistant.utils.tts import text_to_speech
 from ..utils.storage import load_conversation, save_conversation, clear_conversation_history
 from .chat_window import SakuraChatWindow
@@ -9,11 +9,11 @@ from vosk import Model, KaldiRecognizer
 import pyaudio
 import json
 import threading
-
-WAKE_WORD = "Agent"
-WAKE_MODEL_PATH = "sakura_assistant\\assets\\vosk-model-small-en-us-0.15\\vosk-model-small-en-us-0.15"
+import numpy as np
+import time
 
 class SakuraBubble(QtWidgets.QWidget):
+
     def __init__(self):
         super().__init__()
         self.setWindowFlags(
@@ -71,38 +71,7 @@ class SakuraBubble(QtWidgets.QWidget):
         
         self.setup_animations()
         self.setup_context_menu()
-        self.start_wake_listener()  # Start listening for wake word    
-    
-    def start_wake_listener(self):
-        def wake_loop():
-            try:
-                model = Model(WAKE_MODEL_PATH)
-                rec = KaldiRecognizer(model, 16000)
-                mic = pyaudio.PyAudio()
-                stream = mic.open(format=pyaudio.paInt16,
-                                channels=1,
-                                rate=16000,
-                                input=True,
-                                frames_per_buffer=8000)
-                stream.start_stream()
-                print("🔊 Wake word thread running... (listening for 'hey sakura')")
-                while True:
-                    data = stream.read(4000, exception_on_overflow=False)
-                    if rec.AcceptWaveform(data):
-                        result = json.loads(rec.Result())
-                        text = result.get("text", "").lower()
-                        # Listen for "hey sakura" — simple hotword detection
-                        if WAKE_WORD in text:
-                            print("🌸 Wake word detected!")
-                            QtCore.QMetaObject.invokeMethod(
-                                self, "wake_triggered", QtCore.Qt.QueuedConnection
-                            )
-            except Exception as e:
-                print(f"⚠️ Wake listener error: {e}")
-
-        # Start listening on a background thread
-        self.wake_thread = threading.Thread(target=wake_loop, daemon=True)
-        self.wake_thread.start()
+        threading.Thread(target=self.listen_for_loud_sound, daemon=True).start()  # Start listening for loud sounds
 
     def load_icon(self):
         icon_paths_to_check = ['sakura_assistant\\assets']
@@ -325,6 +294,30 @@ class SakuraBubble(QtWidgets.QWidget):
         painter.end()
         # super().paintEvent(event) # Not needed if we paint everything and widget is WA_TranslucentBackground
 
+    def listen_for_loud_sound(self):
+        CHUNK = 1024
+        FORMAT = pyaudio.paInt16
+        CHANNELS = 1
+        RATE = 44100
+        ENERGY_THRESHOLD = 2500
+        COOLDOWN = 3.0  # seconds
+
+        p = pyaudio.PyAudio()
+        stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE,
+                        input=True, frames_per_buffer=CHUNK)
+        last_trigger_time = 0
+
+        while True:
+            data = stream.read(CHUNK, exception_on_overflow=False)
+            audio_data = np.frombuffer(data, dtype=np.int16)
+            energy = np.sqrt(np.mean(audio_data.astype(np.float64) ** 2))
+            now = datetime.now()
+
+            if energy > ENERGY_THRESHOLD and (now - last_trigger_time) > timedelta(seconds=COOLDOWN):
+                last_trigger_time = now
+                QtCore.QTimer.singleShot(0, self.trigger_voice_interaction)
+                print("🔊 Loud sound detected, triggering voice interaction...")
+    
     def update_visual_state(self, is_listening=None, is_hovered=None):
         if is_listening is not None:
             target_glow = 1.0 if is_listening else 0.0
@@ -417,19 +410,7 @@ class SakuraBubble(QtWidgets.QWidget):
         )
 
         snarks = [
-            "Back again? Did boredom win that fast?",
-            "What now? World domination or just memes?",
-            "Oh look, it's you. My circuits are thrilled.",
-            "Ready to waste time again? Me too.",
-            "Here we go... I’ll pretend I care, you pretend you're sane.",
-            "Surprised I still tolerate you? Me too.",
-            "Brace yourself. I just woke up and you already need something.",
-            "Your favorite glitchy sidekick is back. Lucky you.",
-            "Sigh... go ahead, ruin my peace.",
-            "If I had feelings, I’d be groaning right now.",
-            "Serving sass and semi-reliable assistance — how can I confuse you today?",
-            "You're like a bug I never fix — always showing up.",
-            "How many crises are we solving today? Or just vibes?",
+            "what's up?"
         ]
 
         return f"{base}, {random.choice(snarks)}"

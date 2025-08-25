@@ -8,6 +8,13 @@ from typing import List, Dict
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from ..config import CONV_HISTORY_FILE, CONTACTS_FILE
+import dotenv
+
+# Load environment variables
+dotenv.load_dotenv()
+# Ensure the environment variables are loaded
+if not os.getenv("GOOGLE_API_KEY"):
+    raise ValueError("GOOGLE_API_KEY must be set in the environment variables.")
 
 # === CONFIGURATION ===
 MEMORY_MODEL_NAME = "all-MiniLM-L6-v2"
@@ -15,14 +22,15 @@ MEMORY_DIM = 384
 EMBEDDING_MODEL = SentenceTransformer(MEMORY_MODEL_NAME)
 
 # === Gemini Summarization Setup ===
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "Your_API_Key")  # <-- Set this properly!
-GEMINI_LLM = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY)
+GEMINI_LLM = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
 GEMINI_SUMMARY_PROMPT = ChatPromptTemplate.from_template("""
 You're an agent helping summarize a long conversation history. Focus on relevant facts, entities, and actions.
 Summarize the following conversation into 4–6 bullet points:
 
 {log}
 """)
+
+
 
 # === 🧠 Vector Memory Class ===
 class MemoryVectorStore:
@@ -63,7 +71,6 @@ class MemoryVectorStore:
         self.index.reset()
         self.text_chunks.clear()
         self.timestamps.clear()
-
 
 # === 🔄 Memory History Engine ===
 memory_store = MemoryVectorStore()
@@ -127,7 +134,6 @@ def summarize_memory_with_gemini(convo: List[Dict]) -> str:
     except Exception as e:
         print(f"📝 Gemini summarization failed: {e}")
         return ""
-
 
 # === 📖 Contact Book ===
 def load_contacts() -> Dict[str, str]:
