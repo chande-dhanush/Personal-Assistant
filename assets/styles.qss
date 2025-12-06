@@ -1,0 +1,162 @@
+/* Global Window Settings */
+QWidget {
+    border-radius: 18px;
+    background: transparent;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Main Card */
+QFrame#MainCard {
+    background: #2B2D31;
+    border-radius: 18px;
+}
+
+/* Header */
+QFrame#Header {
+    background: #2B2D31;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom: 1px solid #404249;
+}
+
+QLabel#HeaderTitle {
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+QLabel#MemoryStatus {
+    color: #B9BBBE;
+    font-size: 10px;
+    padding: 4px 8px;
+    background: #313338;
+    border-radius: 8px;
+}
+
+QLabel#IngestStatus {
+    color: #FFFFFF;
+    font-size: 10px;
+    padding: 4px 8px;
+    background: #2ecc71;
+    border-radius: 8px;
+}
+
+QLabel#IngestStatus[active="true"] {
+    background: #f39c12;
+}
+
+/* Files Section */
+QFrame#FilesFrame {
+    background: #313338;
+    border-bottom: 1px solid #404249;
+}
+
+QLabel#FilesHeader {
+    color: #B9BBBE;
+    font-weight: bold;
+}
+
+QListWidget#FilesList {
+    background: #202225;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+}
+
+/* Toolbar */
+QPushButton#ToolbarBtn {
+    background: transparent;
+    color: #B9BBBE;
+    border: none;
+}
+
+QPushButton#ToolbarBtn:hover {
+    color: #FFFFFF;
+}
+
+QPushButton#ClearChatBtn {
+    background: transparent;
+    color: #B9BBBE;
+    border: none;
+}
+
+QPushButton#ClearChatBtn:hover {
+    color: #e74c3c;
+}
+
+/* Chat Area */
+QTextBrowser#ChatArea {
+    background: #2B2D31;
+    color: #FFFFFF;
+    border: none;
+    font-size: 14pt;
+    padding: 20px;
+}
+
+/* Input Bar */
+QFrame#InputBar {
+    background: #2B2D31;
+    border-top: 1px solid #404249;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+}
+
+QPushButton#UploadBtn {
+    background: transparent;
+    color: #B9BBBE;
+    border: 1px solid #404249;
+    border-radius: 20px;
+    font-size: 18px;
+}
+
+QPushButton#UploadBtn:hover {
+    background: #313338;
+    color: #FFFFFF;
+}
+
+QLineEdit#MessageInput {
+    background: #202225;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 13pt;
+    border: 1px solid #404249;
+}
+
+QLineEdit#MessageInput:focus {
+    border: 1px solid #3D3DE3;
+}
+
+QPushButton#SendBtn {
+    background-color: #7289da;
+    color: white;
+    border: none;
+    border-radius: 22px;
+    font-size: 18px;
+}
+
+QPushButton#SendBtn:hover {
+    background-color: #677bc4;
+}
+
+/* Mic Button */
+QPushButton#MicBtn {
+    background-color: #4fc08d;
+    border: 2px solid white;
+    border-radius: 20px;
+    font-size: 16px;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+QPushButton#MicBtn:hover {
+    background-color: #4fb08d;
+}
+
+QPushButton#MicBtn[listening="true"] {
+    background-color: #f04747;
+}
+
+QPushButton#MicBtn[listening="true"]:hover {
+    background-color: #f04500;
+}
