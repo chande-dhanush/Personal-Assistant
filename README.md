@@ -62,12 +62,5 @@ Sakura uses a **Hybrid Agentic RAG** architecture:
 5.  **Output**: Synthesized Voice + UI Response.
 
 ## 🤝 Contributing
-Open to PRs! Please check `PROJECT_BIBLE.md` (if available) for architecture details.
+Open to PRs! Please check 'Implementation Summary' for architecture details.
 
-## 📄 License
-MIT License
-
-
----
-## For more information on the entire implementation of the project, refer to Implementation Summary.md
----
