@@ -1,0 +1,32 @@
+# Memory System Configuration
+
+version: "1.0"
+
+storage:
+  base_path: "data/memory"
+  backup_path: "data/backup"
+  backup_count: 5
+  shard_period: "month" # month, year, or none
+
+chunking:
+  strategy: "semantic" # fixed, semantic
+  min_chunk_len: 50
+  max_chunk_len: 500
+  overlap: 50
+  
+retrieval:
+  top_k_candidate: 30
+  top_k_final: 5
+  use_embeddings: false # Toggle for Phase 3
+  embedding_model: "all-MiniLM-L6-v2"
+  
+scoring:
+  weights:
+    jaccard: 0.4
+    keyword: 0.25
+    recency: 0.15
+    quality: 0.20
+
+maintenance:
+  max_total_chunks: 3000
+  prune_threshold: 0.3
