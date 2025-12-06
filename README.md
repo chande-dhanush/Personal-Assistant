@@ -23,7 +23,7 @@ Sakura is a powerful, modular desktop assistant built with **Python**, **PyQt5**
 
 ### Prerequisites
 - Windows 10/11
-- Python 3.10+
+- Python 3.10+ (Python 3.11 or 3.12 is highly recommended for best performance and less debugging headaches)
 - [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki) (Install & add to PATH)
 
 ### 1. Clone & Install
