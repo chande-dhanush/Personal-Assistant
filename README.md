@@ -4,8 +4,6 @@
 
 Sakura is a powerful, modular desktop assistant built with **Python**, **PyQt5**, and **LangGraph**. She lives as a floating bubble on your desktop, ready to help you control your PC, play music, search the web, and remember your conversations.
 
-![Sakura UI](https://i.imgur.com/placeholder.png)
-
 ## ✨ Key Features
 
 - **🗣️ Voice Interaction**: Natural conversations using **Google Speech Recognition** (Inputs) and **Edge-TTS** (Outputs).
@@ -68,3 +66,7 @@ Open to PRs! Please check `PROJECT_BIBLE.md` (if available) for architecture det
 
 ## 📄 License
 MIT License
+
+
+
+## For more information on the entire implementation of the project, refer to Implementation Summary.mb
