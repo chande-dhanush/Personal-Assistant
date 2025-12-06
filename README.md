@@ -68,5 +68,6 @@ Open to PRs! Please check `PROJECT_BIBLE.md` (if available) for architecture det
 MIT License
 
 
-
-## For more information on the entire implementation of the project, refer to Implementation Summary.mb
+---
+## For more information on the entire implementation of the project, refer to Implementation Summary.md
+---
