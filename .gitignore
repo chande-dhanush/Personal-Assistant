@@ -1,0 +1,30 @@
+# Secrets
+token.json
+credentials.json
+.env
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Data & Logs
+data/
+logs/
+*.log
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+
+# System
+Thumbs.db
+Desktop.ini
+
+# Artifacts
+.gemini/
