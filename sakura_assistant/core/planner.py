@@ -1,102 +1,136 @@
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from langchain_core.messages import SystemMessage, HumanMessage
-from ..config import GROQ_API_KEY, GOOGLE_API_KEY
+from ..config import GROQ_API_KEY
 
 # Planner System Prompt
-PLANNER_SYSTEM_PROMPT = """You are Sakura, an advanced planner. When a request requires more than one operation, output ONLY a JSON plan describing the steps. Never execute. Use step IDs, actions, and parameters.
+PLANNER_SYSTEM_PROMPT = """You are Sakura, the advanced planning engine. Your goal is to analyze the user's request and create a precise, step-by-step execution plan using the available tools.
 
-If the request requires only a simple answer or a single tool call, return: {"mode": "single_step"}
+AVAILABLE TOOLS:
+1. spotify_control(action: str, song_name: str) - Play/Pause/Next/Previous music.
+2. play_youtube(topic: str) - Play video/audio on YouTube.
+3. web_search(query: str) - Search Google/Tavily for information.
+4. read_screen(prompt: str) - Analyze the user's screen content.
+5. gmail_read_email(query: str) - Read emails.
+6. gmail_send_email(to: str, subject: str, body: str) - Send an email.
+7. calendar_get_events(date: str) - Check calendar.
+8. calendar_create_event(title: str, start_time: str, end_time: str) - Add to calendar.
+9. tasks_list() - List Todo tasks.
+10. tasks_create(title: str, notes: str) - Create a Todo task.
+11. note_create(title: str, content: str, folder: str) - Create a note. Use folders: 'topics', 'daily', 'work', 'personal'.
+12. note_append(title: str, content: str, folder: str) - Append to an existing note.
+13. note_read(title: str, folder: str) - Read a note.
+14. note_list(folder: str) - List notes in a folder.
+15. file_read(path: str) - Read a local file (NOT for notes, use note_read).
+16. file_write(path: str, content: str) - Write to a file (NOT for notes, use note_create).
+17. fetch_document_context(query: str): Find information in uploaded documents (RAG).
+18. list_uploaded_documents(): Get a list of all uploaded file names and IDs.
+19. delete_document(doc_id: str): Remove an uploaded document from memory.
+20. list_files(path: str) - List files in a directory.
+21. web_scrape(url: str) - Scrape and read text from a website.
+22. open_app(app_name: str) - Open any desktop application.
 
-If the request requires multiple steps, return a JSON object with a "plan" key containing a list of steps.
-Each step must have:
-- "id": integer step ID (starting from 1)
-- "action": one of [inform_user, search_web, rag_query, read_file, write_file, append_file, generate_content, summarize, embed_document, store_memory, reply_user]
-- "params": dictionary of parameters for the action
-- "description": brief description of what this step does
 
-Example Multi-step Plan:
+OUTPUT FORMAT:
+You must output ONLY valid JSON. No markdown, no explanations.
+
+Structure:
 {
-  "mode": "multi_step",
   "plan": [
     {
       "id": 1,
-      "action": "search_web",
-      "params": {"query": "latest AI news"},
-      "description": "Search for latest AI news"
-    },
-    {
-      "id": 2,
-      "action": "summarize",
-      "params": {"text": "$step_1_result"},
-      "description": "Summarize the search results"
-    },
-    {
-      "id": 3,
-      "action": "reply_user",
-      "params": {"message": "$step_2_result"},
-      "description": "Send summary to user"
+      "tool": "tool_name",
+      "args": { "arg_name": "value" },
+      "reason": "Short explanation of why this step is needed."
     }
   ]
 }
 
-Supported Actions & Params:
-- inform_user(message: str): Send an intermediate update to the user.
-- search_web(query: str): Search the internet.
-- rag_query(query: str): Search uploaded documents/memory.
-- read_file(path: str): Read a local file. (Use 'data/user_files/filename')
-- write_file(path: str, content: str): Write to a file. (ALWAYS use 'data/user_files/filename')
-- append_file(path: str, content: str): Append to a file. (Use 'data/user_files/filename')
-- generate_content(prompt: str, context: str): Generate text using LLM.
-- summarize(text: str): Summarize text.
-- embed_document(path: str): Process and embed a file.
-- store_memory(content: str): Save to long-term memory.
-- reply_user(message: str): Final response to the user.
-- disk_maintenance(): Check and prune disk usage.
-- check_ingest_state(): Check if file ingestion is active.
+RULES:
+- If the request is simple chat (e.g., "Hi", "Who are you?", "Tell me a joke") and requires NO tools, return:
+  { "plan": [] }
+- You can create multiple steps (e.g., Search -> Write File).
+- Arguments must be precise.
+  - For Spotify: If user says "Play Mood", args: {"action": "play", "song_name": "Mood"}.
+  - For YouTube: If user says "Play Mood on YouTube", args: {"topic": "Mood"}.
+- NOTES: Only use note_create when user EXPLICITLY asks to "make a note", "save this", or "write down". Never create empty notes. The content arg must have actual text.
+"""
 
-CRITICAL: Output ONLY valid JSON. No markdown formatting, no explanations.
-Files MUST be saved in 'data/user_files/'. Example: "data/user_files/notes.txt".
+# V4.2: Planner cache for idempotent commands (saves API calls)
+# ONLY cache commands that are: deterministic, no arguments, no time-sensitivity
+_CACHEABLE_PATTERNS = {
+    "play spotify": {"plan": [{"id": 1, "tool": "spotify_control", "args": {"action": "play"}}]},
+    "pause spotify": {"plan": [{"id": 1, "tool": "spotify_control", "args": {"action": "pause"}}]},
+    "pause music": {"plan": [{"id": 1, "tool": "spotify_control", "args": {"action": "pause"}}]},
+    "stop music": {"plan": [{"id": 1, "tool": "spotify_control", "args": {"action": "pause"}}]},
+    "next track": {"plan": [{"id": 1, "tool": "spotify_control", "args": {"action": "next"}}]},
+    "next song": {"plan": [{"id": 1, "tool": "spotify_control", "args": {"action": "next"}}]},
+    "previous track": {"plan": [{"id": 1, "tool": "spotify_control", "args": {"action": "previous"}}]},
+    "previous song": {"plan": [{"id": 1, "tool": "spotify_control", "args": {"action": "previous"}}]},
+    "show calendar": {"plan": [{"id": 1, "tool": "calendar_get_events", "args": {}}]},
+    "open calendar": {"plan": [{"id": 1, "tool": "calendar_get_events", "args": {}}]},
+    "list tasks": {"plan": [{"id": 1, "tool": "tasks_list", "args": {}}]},
+    "show tasks": {"plan": [{"id": 1, "tool": "tasks_list", "args": {}}]},
+    "list notes": {"plan": [{"id": 1, "tool": "note_list", "args": {}}]},
+    "show notes": {"plan": [{"id": 1, "tool": "note_list", "args": {}}]},
+}
 
-If the RAG system is currently ingesting a file (system flag: is_ingesting=True), your plan must first inform the user that the system is still processing a file and cannot answer RAG-based questions yet. Return a single 'inform_user' action in that case."""
+
+def _normalize_for_cache(text: str) -> str:
+    """Normalize input for cache lookup."""
+    return text.lower().strip()
+
 
 class Planner:
     def __init__(self, llm):
+        """
+        Initialize Planner with a high-intelligence LLM (e.g., GPT-OSS-120b).
+        """
         self.llm = llm
 
     def plan(self, user_input: str, context: str = "") -> Dict[str, Any]:
         """
-        Generates a plan based on user input.
-        Uses a strictly isolated context to prevent hallucination.
+        Generates a JSON execution plan.
+        
+        V4.2: Uses cache for idempotent commands to save API calls.
         """
-        # CRITICAL: Do not inject conversation history or tools here.
-        # The planner should only see the current request and relevant RAG context.
+        # V4.2: Check cache for idempotent commands
+        from ..config import ENABLE_PLANNER_CACHE
+        if ENABLE_PLANNER_CACHE:
+            normalized = _normalize_for_cache(user_input)
+            if normalized in _CACHEABLE_PATTERNS:
+                print(f"⚡ Planner: Cache hit for '{normalized}'")
+                return _CACHEABLE_PATTERNS[normalized]
         
         messages = [
             SystemMessage(content=PLANNER_SYSTEM_PROMPT),
-            HumanMessage(content=f"Context (RAG/Memory):\n{context}\n\nUser Request: {user_input}")
+            HumanMessage(content=f"User Request: {user_input}\nContext: {context}")
         ]
 
         try:
-            # We use the LLM instance passed in, but we ensure the call is isolated via the messages list.
-            # If the LLM instance has bound tools, we might need to unbind them or use a raw invoke.
-            # Assuming self.llm is a ChatModel, invoke(messages) is standard.
-            
-            # If self.llm is a bound agent, this might fail. We expect a raw ChatModel here.
+            print("🧠 Planner: Thinking...")
             response = self.llm.invoke(messages)
-            content = response.content
+            content = response.content.strip()
             
-            # Clean up potential markdown code blocks
+            # Sanitization (Remove markdown if model hallucinates it)
             if "```json" in content:
                 content = content.split("```json")[1].split("```")[0].strip()
             elif "```" in content:
                 content = content.split("```")[1].split("```")[0].strip()
                 
             plan_data = json.loads(content)
+            
+            # Validation
+            if not isinstance(plan_data, dict) or "plan" not in plan_data:
+                print(f"⚠️ Invalid Plan Format: {content}")
+                return {"plan": []}
+                
+            print(f"📋 Planner Output: {len(plan_data['plan'])} steps.")
             return plan_data
+
         except json.JSONDecodeError:
-            print(f"❌ Planner failed to generate valid JSON. Raw output: {content}")
-            return {"mode": "single_step"} # Fallback
+            print(f"❌ Planner JSON Error. Raw: {content}")
+            return {"plan": []}
         except Exception as e:
-            print(f"❌ Planner error: {e}")
-            return {"mode": "single_step"} # Fallback
+            print(f"❌ Planner Error: {e}")
+            return {"plan": []}
