@@ -4,6 +4,8 @@
 
 Sakura is a powerful, modular desktop assistant built with **Python**, **PyQt5**, and **LangGraph**. She lives as a floating bubble on your desktop, ready to help you control your PC, play music, search the web, and remember your conversations.
 
+![Sakura UI](https://i.imgur.com/placeholder.png)
+
 ## ✨ Key Features
 
 - **🗣️ Voice Interaction**: Natural conversations using **Google Speech Recognition** (Inputs) and **Edge-TTS** (Outputs).
@@ -16,6 +18,7 @@ Sakura is a powerful, modular desktop assistant built with **Python**, **PyQt5**
   - **Spotify**: Play, pause, skip tracks seamlessly.
   - **YouTube**: Auto-fallback for video/music search.
 - **👁️ Vision**: Reads text on your screen using **Tesseract OCR**.
+- **📝 Notes**: Scan and read your notes.
 - **🖥️ Desktop Control**: Launch apps, read clipboards, and manage tasks.
 - **⚙️ Setup Wizard**: Easy GUI for configuring API keys.
 
@@ -23,7 +26,7 @@ Sakura is a powerful, modular desktop assistant built with **Python**, **PyQt5**
 
 ### Prerequisites
 - Windows 10/11
-- Python 3.10+ (Python 3.11 or 3.12 is highly recommended for best performance and less debugging headaches)
+- Python 3.10+
 - [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki) (Install & add to PATH)
 
 ### 1. Clone & Install
@@ -62,5 +65,7 @@ Sakura uses a **Hybrid Agentic RAG** architecture:
 5.  **Output**: Synthesized Voice + UI Response.
 
 ## 🤝 Contributing
-Open to PRs! Please check 'Implementation Summary' for architecture details.
+Open to PRs! Please check `PROJECT_BIBLE.md` (if available) for architecture details.
 
+## 📄 License
+MIT License

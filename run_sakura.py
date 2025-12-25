@@ -1,7 +1,11 @@
 
 import sys
 import os
+import warnings
 
+# Suppress warnings to keep console clean
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 # Add the parent directory of sakura_assistant to sys.path
 # This makes 'sakura_assistant' discoverable as a package
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
