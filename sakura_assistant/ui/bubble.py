@@ -427,7 +427,8 @@ class SakuraBubble(QtWidgets.QWidget):
         if self.should_greet():
             greeting = self.get_greeting()
             print(f"Greeting: {greeting}")
-            self.conversation_history.append({'role': 'assistant', 'content': greeting})
+            # V4.2: Don't append to history here - let chat_window handle it
+            # This prevents duplicate "Good afternoon" messages
             if hasattr(self.chat_window, 'refresh_chat_area'):
                 self.chat_window.refresh_chat_area()
             text_to_speech(greeting)

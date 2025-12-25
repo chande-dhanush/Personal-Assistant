@@ -1,0 +1,171 @@
+/* Global Theme - "Deep Navy" */
+QWidget {
+    background-color: #0E1624; /* Base Background */
+    color: #DCE7FF; /* Warmer, soft text */
+    font-family: 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
+    font-size: 24px; /* Huge jump for visibility */
+}
+
+/* Scrollbars */
+QScrollBar:vertical {
+    border: none;
+    background: #111B2E;
+    width: 12px;
+    margin: 0;
+}
+QScrollBar::handle:vertical {
+    background: #273550; /* User Bubble Color for handle/subtle */
+    min-height: 20px;
+    border-radius: 6px;
+}
+QScrollBar::handle:vertical:hover {
+    background: #7AB8FF; /* Accent on hover */
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    background: none;
+}
+
+/* Toolbar Buttons */
+QPushButton#ToolbarBtn {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 10px;
+    color: #99AFFF; /* Secondary Accent */
+    font-size: 24px; /* High visibility */
+}
+QPushButton#ToolbarBtn:hover {
+    background-color: #1C273A;
+    color: #7AB8FF;
+}
+QPushButton#ToolbarBtn:checked {
+    background-color: #1C273A;
+    border: 1px solid #7AB8FF;
+    color: #7AB8FF;
+}
+
+/* Input Area */
+QFrame#InputBar {
+    background-color: #111B2E; /* Chat Background */
+    border-top: 1px solid #1C273A;
+}
+QLineEdit#MessageInput {
+    background-color: #1C273A;
+    border: 1px solid #273550;
+    border-radius: 30px;
+    padding: 15px 25px;
+    color: #DCE7FF;
+    font-size: 24px;
+}
+QLineEdit#MessageInput:focus {
+    border: 1px solid #7AB8FF; /* Accent */
+    background-color: #0E1624;
+}
+
+/* Send Button */
+QPushButton#SendBtn {
+    background-color: #7AB8FF; /* Accent */
+    color: #0E1624; /* Dark text on bright button */
+    border: none;
+    border: none;
+    border-radius: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    padding-bottom: 4px;
+}
+QPushButton#SendBtn:hover {
+    background-color: #99AFFF;
+}
+QPushButton#SendBtn:pressed {
+    background-color: #4CD6A1; /* Success color on press */
+}
+
+/* Mic Button (Idle) */
+QPushButton#MicBtn {
+    background-color: #1C273A; 
+    color: #99AFFF;
+    border: 2px solid #273550;
+    border-radius: 24px;
+}
+QPushButton#MicBtn:hover {
+    border-color: #7AB8FF;
+    color: #7AB8FF;
+}
+/* Mic Button (Listening) */
+QPushButton#MicBtn[listening="true"] {
+    background-color: #F65F87; /* Error/Active Red-Pink */
+    color: white;
+    border: 2px solid #F65F87;
+}
+
+/* Header */
+QFrame#Header {
+    background-color: #0E1624;
+    border-bottom: 1px solid #1C273A;
+}
+QLabel#HeaderTitle {
+    font-size: 32px;
+    font-weight: bold;
+    color: #DCE7FF;
+}
+
+/* Pill Widget */
+QLabel#ContextPill {
+    background-color: #1C273A;
+    color: #99AFFF;
+    border: 1px solid #273550;
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-family: 'Consolas', monospace;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Debug Drawer */
+QFrame#DebugDrawer {
+    background-color: #0E1624;
+    border-top: 1px solid #1C273A;
+}
+QTextBrowser#DebugLog {
+    background-color: #000000;
+    color: #4CD6A1; /* Success Green for text */
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    border: 1px solid #1C273A;
+}
+
+/* Notes Panel */
+QFrame#NotesPanel {
+    background-color: #111B2E;
+    border-left: 1px solid #1C273A;
+}
+QListWidget#NotesList {
+    background-color: #0E1624;
+    color: #DCE7FF;
+    border: 1px solid #1C273A;
+    border-radius: 8px;
+    font-size: 20px;
+}
+QListWidget#NotesList::item {
+    padding: 10px;
+}
+QListWidget#NotesList::item:selected {
+    background-color: #1C273A;
+    color: #7AB8FF;
+    border-left: 3px solid #7AB8FF;
+}
+
+/* Scroll Button */
+QPushButton#ScrollBtn {
+    background-color: #1C273A; 
+    color: #7AB8FF; 
+    border: 1px solid #273550; 
+    border-radius: 20px; 
+    font-size: 18px;
+    font-weight: bold;
+}
+QPushButton#ScrollBtn:hover {
+    background-color: #273550;
+    border-color: #7AB8FF;
+    color: #DCE7FF;
+}

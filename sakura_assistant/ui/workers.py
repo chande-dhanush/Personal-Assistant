@@ -3,26 +3,29 @@ import speech_recognition as sr
 import traceback
 from ..core.llm import run_agentic_response
 from ..utils.tts import text_to_speech
-from ..memory.faiss_store import add_message_to_memory, save_conversation
+from ..utils.memory_judger import should_store_message
+from ..memory.faiss_store import add_message_to_memory
+from ..utils.stability_logger import log_flow, log_success, log_error
 import sys
 
 class WorkerSignals(QtCore.QObject):
     """
     Defines the signals available from a running worker thread.
+    V3: Only 'finished' carries the result payload dict.
     """
-    finished = QtCore.pyqtSignal()
+    finished = QtCore.pyqtSignal(object) # Carries result payload (dict)
     error = QtCore.pyqtSignal(tuple)
     result = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal(int)
     
-    # Specific signals for our app
-    update_ui = QtCore.pyqtSignal(str) # For text updates
-    update_chat = QtCore.pyqtSignal()  # To refresh chat area
-    start_listening = QtCore.pyqtSignal() # To trigger listening again
+    # Voice-specific
+    start_listening = QtCore.pyqtSignal()
+
 
 class AgentWorker(QtCore.QRunnable):
     """
     Worker thread for running the Agent LLM response.
+    V3: Emits finished(dict) with full payload.
     """
     def __init__(self, user_message, history):
         super(AgentWorker, self).__init__()
@@ -32,31 +35,75 @@ class AgentWorker(QtCore.QRunnable):
 
     @QtCore.pyqtSlot()
     def run(self):
+        payload = None
+        had_error = False
+        
         try:
+            log_flow("ViewModel → Worker", f"history_len={len(self.history)}")
             # 1. Get LLM Response
-            response = run_agentic_response(self.user_message, self.history)
+            result_obj = run_agentic_response(self.user_message, self.history)
             
-            # 2. Update Memory
-            add_message_to_memory(response, "assistant")
-            save_conversation(self.history)
+            # Ensure dict structure with role
+            if isinstance(result_obj, dict):
+                response_text = result_obj.get("content", "")
+                metadata = result_obj.get("metadata", {})
+            else:
+                response_text = str(result_obj)
+                metadata = {"mode": "Legacy", "confidence": 0.0, "tool_used": "None"}
             
-            # 3. Update UI (via signal)
-            self.signals.update_chat.emit()
+            # Build V3 Payload
+            payload = {
+                "role": "assistant",
+                "content": response_text,
+                "metadata": metadata
+            }
             
-            # 4. TTS (Blocking or Callback?)
-            # We'll run TTS here. It might block this worker thread, which is fine for QThreadPool.
-            # But we need to know when it's done to trigger listening.
+            # 2. ALWAYS append to conversation history first (critical fix)
+            from ..memory.faiss_store import get_memory_store
+            store = get_memory_store()
+            store.append_to_history({"role": "assistant", "content": response_text})
+            
+            # 3. Use Memory Judger to decide if response should be stored in FAISS
+            should_store, reason, importance = should_store_message(response_text, "assistant")
+            
+            if should_store:
+                add_message_to_memory(response_text, "assistant")
+            else:
+                print(f"⏭️ Skipped FAISS: {reason}")
+            
+            # Note: save_conversation is handled by debounced store.request_save()
+            # Do NOT call save here to avoid duplicate saves
             
             # 4. TTS
-            # We run TTS here. Since auto-listening is disabled, we don't need a callback.
-            text_to_speech(response)
+            text_to_speech(response_text)
             
-        except Exception:
+            # 5. Log success
+            log_flow("Worker → LLM → Worker", f"response_len={len(response_text)}")
+            log_success()
+            
+        except Exception as e:
+            had_error = True
+            log_error(f"AgentWorker exception: {e}")
             traceback.print_exc()
             exctype, value = sys.exc_info()[:2]
-            self.signals.error.emit((exctype, value, traceback.format_exc()))
+            try:
+                self.signals.error.emit((exctype, value, traceback.format_exc()))
+            except Exception:
+                pass
+        
         finally:
-            self.signals.finished.emit()
+            # CRITICAL: ALWAYS emit finished signal to unblock is_processing
+            try:
+                if payload is None:
+                    payload = {
+                        "role": "assistant",
+                        "content": "I encountered an error processing your request.",
+                        "metadata": {"mode": "Error", "confidence": 0.0}
+                    }
+                self.signals.finished.emit(payload)
+            except Exception:
+                pass
+
 
 class VoiceWorker(QtCore.QRunnable):
     """
@@ -107,4 +154,4 @@ class VoiceWorker(QtCore.QRunnable):
             if os.path.exists(temp_wav):
                 try: os.remove(temp_wav)
                 except: pass
-            self.signals.finished.emit()
+            self.signals.finished.emit(None)  # V3: Signal expects object, pass None for voice-only
